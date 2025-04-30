@@ -332,7 +332,7 @@ all of MD as it is not optimized for dense, information rich UIs.
 
   /* Code mirror specific styles */
 
-  --jp-mirror-editor-keyword-color: #008000;
+  --jp-mirror-editor-keyword-color: #7DCFFF;
   --jp-mirror-editor-atom-color: #88f;
   --jp-mirror-editor-number-color: #080;
   --jp-mirror-editor-def-color: #00f;
@@ -343,7 +343,7 @@ all of MD as it is not optimized for dense, information rich UIs.
   --jp-mirror-editor-property-color: #05a;
   --jp-mirror-editor-operator-color: #a2f;
   --jp-mirror-editor-comment-color: #408080;
-  --jp-mirror-editor-string-color: #ba2121;
+  --jp-mirror-editor-string-color: #9ECE6A;
   --jp-mirror-editor-string-2-color: #708;
   --jp-mirror-editor-meta-color: #a2f;
   --jp-mirror-editor-qualifier-color: #555;

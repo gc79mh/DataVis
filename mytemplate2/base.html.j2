@@ -3,27 +3,51 @@
 {% from 'cell_id_anchor.j2' import cell_id_anchor %}
 
 {% block codecell %}
-<div {{ cell_id_anchor(cell) }} class="cell border-box-sizing code_cell rendered{{ celltags(cell) }}">
+{%- if not cell.outputs -%}
+{%- set no_output_class="jp-mod-noOutputs" -%}
+{%- endif -%}
+{%- if not resources.global_content_filter.include_input -%}
+{%- set no_input_class="jp-mod-noInput" -%}
+{%- endif -%}
+<div {{ cell_id_anchor(cell) }} class="jp-Cell jp-CodeCell jp-Notebook-cell {{ no_output_class }} {{ no_input_class }} {{ celltags(cell) }}">
 {{ super() }}
 </div>
 {%- endblock codecell %}
 
 {% block input_group -%}
-<div class="input">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
 {{ super() }}
+</div>
 </div>
 {% endblock input_group %}
 
-{% block output_group %}
-<div class="output_wrapper">
-<div class="output">
-{{ super() }}
+{% block input %}
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="cm-editor cm-s-jupyter">
+{{ cell.source | highlight_code(metadata=cell.metadata) | clean_html }}
+     </div>
 </div>
+{%- endblock input %}
+
+{% block output_group %}
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+{{ super() }}
 </div>
 {% endblock output_group %}
 
+{% block outputs %}
+<div class="jp-OutputArea jp-Cell-outputArea">
+{{ super() }}
+</div>
+{% endblock outputs %}
+
 {% block in_prompt -%}
-<div class="prompt input_prompt">
+<div class="jp-InputPrompt jp-InputArea-prompt">
     {%- if cell.execution_count is defined -%}
         In&nbsp;[{{ cell.execution_count|replace(None, "&nbsp;") }}]:
     {%- else -%}
@@ -33,41 +57,35 @@
 {%- endblock in_prompt %}
 
 {% block empty_in_prompt -%}
-<div class="prompt input_prompt">
+<div class="jp-InputPrompt jp-InputArea-prompt">
 </div>
 {%- endblock empty_in_prompt %}
 
 {#
   output_prompt doesn't do anything in HTML,
   because there is a prompt div in each output area (see output block)
-#}
+ #}
 {% block output_prompt %}
 {% endblock output_prompt %}
 
-{% block input %}
-<div class="inner_cell">
-    <div class="input_area">
-{{ cell.source | highlight_code(metadata=cell.metadata) | clean_html }}
-    </div>
-</div>
-{%- endblock input %}
-
 {% block output_area_prompt %}
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">
 {%- if output.output_type == 'execute_result' -%}
-    <div class="prompt output_prompt">
     {%- if cell.execution_count is defined -%}
         Out[{{ cell.execution_count|replace(None, "&nbsp;") }}]:
     {%- else -%}
         Out[&nbsp;]:
     {%- endif -%}
-{%- else -%}
-    <div class="prompt">
 {%- endif -%}
     </div>
 {% endblock output_area_prompt %}
 
 {% block output %}
-<div class="output_area">
+{%- if output.output_type == 'execute_result' -%}
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+{%- else -%}
+<div class="jp-OutputArea-child">
+{%- endif -%}
 {% if resources.global_content_filter.include_output_prompt %}
     {{ self.output_area_prompt() }}
 {% endif %}
@@ -76,18 +94,22 @@
 {% endblock output %}
 
 {% block markdowncell scoped %}
-<div {{ cell_id_anchor(cell) }} class="cell border-box-sizing text_cell rendered{{ celltags(cell) }}">
+<div {{ cell_id_anchor(cell) }} class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
 {%- if resources.global_content_filter.include_input_prompt-%}
     {{ self.empty_in_prompt() }}
 {%- endif -%}
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
+<div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput {{ celltags(cell) }}" data-mime-type="text/markdown">
 {%- if resources.should_sanitize_html %}
 {%- set html_value=cell.source  | markdown2html | strip_files_prefix | clean_html -%}
 {%- else %}
 {%- set html_value=cell.source  | markdown2html | strip_files_prefix -%}
 {%- endif %}
 {{ html_value }}
+</div>
 </div>
 </div>
 </div>
@@ -104,7 +126,7 @@ unknown type  {{ cell.type }}
 {% endblock unknowncell %}
 
 {% block execute_result -%}
-{%- set extra_class="output_execute_result" -%}
+{%- set extra_class="jp-OutputArea-executeResult" -%}
 {% block data_priority scoped %}
 {{ super() }}
 {% endblock data_priority %}
@@ -112,7 +134,7 @@ unknown type  {{ cell.type }}
 {%- endblock execute_result %}
 
 {% block stream_stdout -%}
-<div class="output_subarea output_stream output_stdout output_text">
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>
 {{- output.text | ansi2html -}}
 </pre>
@@ -120,15 +142,25 @@ unknown type  {{ cell.type }}
 {%- endblock stream_stdout %}
 
 {% block stream_stderr -%}
-<div class="output_subarea output_stream output_stderr output_text">
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
 <pre>
 {{- output.text | ansi2html -}}
 </pre>
 </div>
 {%- endblock stream_stderr %}
 
+{% block stream_stdin -%}
+{%- if resources.global_content_filter.include_output_stdin -%}
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stdin">
+<pre>
+{{- output.text | ansi2html -}}
+</pre>
+</div>
+{%- endif %}
+{%- endblock stream_stdin %}
+
 {% block data_svg scoped -%}
-<div class="output_svg output_subarea {{ extra_class }}">
+<div class="jp-RenderedSVG jp-OutputArea-output {{ extra_class }}" data-mime-type="image/svg+xml">
 {%- if output.svg_filename %}
 <img src="{{ output.svg_filename | posix_path | escape_html }}">
 {%- else %}
@@ -141,24 +173,21 @@ unknown type  {{ cell.type }}
 </div>
 {%- endblock data_svg %}
 
+{% block data_mermaid scoped -%}
+<div class="jp-Mermaid">
+<pre class="mermaid">
+{{ output.data['text/vnd.mermaid'].strip() }}
+</pre>
+</div>
+{%- endblock data_mermaid %}
+
 {% block data_html scoped -%}
-<div class="output_html rendered_html output_subarea {{ extra_class }}">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output {{ extra_class }}" data-mime-type="text/html">
 {%- if resources.should_sanitize_html %}
-{%- set html_value=output.data['text/html'] | clean_html -%}
+{{ output.data['text/html'] | clean_html }}
 {%- else %}
-{%- set html_value=output.data['text/html'] -%}
+{{ output.data['text/html'] }}
 {%- endif %}
-{%- if output.get('metadata', {}).get('text/html', {}).get('isolated') -%}
-<iframe
-    class="isolated-iframe"
-    style="height:520px; width:100%; margin:0; padding: 0"
-    frameborder="0"
-    scrolling="auto"
-    src="data:text/html;base64,{{ html_value | text_base64 }}">
-</iframe>
-{%- else -%}
-{{ html_value }}
-{%- endif -%}
 </div>
 {%- endblock data_html %}
 
@@ -168,13 +197,13 @@ unknown type  {{ cell.type }}
 {%- else %}
 {%- set html_value=output.data['text/markdown'] | markdown2html -%}
 {%- endif %}
-<div class="output_markdown rendered_html output_subarea {{ extra_class }}">
+<div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output {{ extra_class }}" data-mime-type="text/markdown">
 {{ html_value }}
 </div>
 {%- endblock data_markdown %}
 
 {% block data_png scoped %}
-<div class="output_png output_subarea {{ extra_class }}">
+<div class="jp-RenderedImage jp-OutputArea-output {{ extra_class }}">
 {%- if 'image/png' in output.metadata.get('filenames', {}) %}
 <img src="{{ output.metadata.filenames['image/png'] | posix_path | escape_html }}"
 {%- else %}
@@ -188,19 +217,23 @@ width={{ width | escape_html }}
 {%- if height is not none %}
 height={{ height | escape_html }}
 {%- endif %}
+class="
 {%- if output | get_metadata('unconfined', 'image/png') %}
-class="unconfined"
+unconfined
 {%- endif %}
-{%- set alttext=(output | get_metadata('alt', 'image/png')) or (cell | get_metadata('alt')) -%}
-{%- if alttext is not none %}
-alt="{{ alttext | escape_html }}"
+{%- if output | get_metadata('needs_background', 'image/png') == 'light' %}
+jp-needs-light-background
 {%- endif %}
+{%- if output | get_metadata('needs_background', 'image/png') == 'dark' %}
+jp-needs-dark-background
+{%- endif %}
+"
 >
 </div>
 {%- endblock data_png %}
 
 {% block data_jpg scoped %}
-<div class="output_jpeg output_subarea {{ extra_class }}">
+<div class="jp-RenderedImage jp-OutputArea-output {{ extra_class }}">
 {%- if 'image/jpeg' in output.metadata.get('filenames', {}) %}
 <img src="{{ output.metadata.filenames['image/jpeg'] | posix_path | escape_html }}"
 {%- else %}
@@ -214,25 +247,29 @@ width={{ width | escape_html }}
 {%- if height is not none %}
 height={{ height | escape_html }}
 {%- endif %}
+class="
 {%- if output | get_metadata('unconfined', 'image/jpeg') %}
-class="unconfined"
+unconfined
 {%- endif %}
-{%- set alttext=(output | get_metadata('alt', 'image/jpeg')) or (cell | get_metadata('alt')) -%}
-{%- if alttext is not none %}
-alt="{{ alttext | escape_html }}"
+{%- if output | get_metadata('needs_background', 'image/jpeg') == 'light' %}
+jp-needs-light-background
 {%- endif %}
+{%- if output | get_metadata('needs_background', 'image/jpeg') == 'dark' %}
+jp-needs-dark-background
+{%- endif %}
+"
 >
 </div>
 {%- endblock data_jpg %}
 
 {% block data_latex scoped %}
-<div class="output_latex output_subarea {{ extra_class }}">
+<div class="jp-RenderedLatex jp-OutputArea-output {{ extra_class }}" data-mime-type="text/latex">
 {{ output.data['text/latex'] | e }}
 </div>
 {%- endblock data_latex %}
 
 {% block error -%}
-<div class="output_subarea output_text output_error">
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
 <pre>
 {{- super() -}}
 </pre>
@@ -244,19 +281,25 @@ alt="{{ alttext | escape_html }}"
 {%- endblock traceback_line %}
 
 {%- block data_text scoped %}
-<div class="output_text output_subarea {{ extra_class }}">
+<div class="jp-RenderedText jp-OutputArea-output {{ extra_class }}" data-mime-type="text/plain">
 <pre>
 {{- output.data['text/plain'] | ansi2html -}}
 </pre>
 </div>
 {%- endblock -%}
 
+{#
+ ###############################################################################
+ # TODO: how to better handle JavaScript repr?                                 #
+ ###############################################################################
+ #}
+
 {%- block data_javascript scoped %}
 {% set div_id = uuid4() %}
-<div id="{{ div_id }}" class="output_subarea output_javascript {{ extra_class }}">
+<div id="{{ div_id }}" class="jp-RenderedJavaScript jp-OutputArea-output {{ extra_class }}" data-mime-type="application/javascript">
 {%- if not resources.should_sanitize_html %}
 <script type="text/javascript">
-var element = $('#{{ div_id }}');
+var element = document.getElementById('{{ div_id }}');
 {{ output.data['application/javascript'] }}
 </script>
 {%- endif %}
@@ -264,29 +307,25 @@ var element = $('#{{ div_id }}');
 {%- endblock -%}
 
 {%- block data_widget_view scoped %}
-{%- if not resources.should_sanitize_html %}
 {% set div_id = uuid4() %}
 {% set datatype_list = output.data | filter_data_type %}
 {% set datatype = datatype_list[0]%}
-<div id="{{ div_id }}" class="output_subarea output_widget_view {{ extra_class }}">
+<div id="{{ div_id }}" class="jupyter-widgets jp-OutputArea-output {{ extra_class }}">
 <script type="text/javascript">
-var element = $('#{{ div_id }}');
+var element = document.getElementById('{{ div_id }}');
 </script>
 <script type="{{ datatype }}">
 {{ output.data[datatype] | json_dumps | escape_html_script }}
 </script>
 </div>
-{%- endif %}
 {%- endblock data_widget_view -%}
 
 {%- block footer %}
-{%- if not resources.should_sanitize_html %}
 {% set mimetype = 'application/vnd.jupyter.widget-state+json'%}
 {% if mimetype in nb.metadata.get("widgets",{})%}
 <script type="{{ mimetype }}">
 {{ nb.metadata.widgets[mimetype] | json_dumps | escape_html_script }}
 </script>
 {% endif %}
-{%- endif %}
 {{ super() }}
 {%- endblock footer-%}

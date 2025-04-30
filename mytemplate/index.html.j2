@@ -1,6 +1,5 @@
 {%- extends 'base.html.j2' -%}
 {% from 'mathjax.html.j2' import mathjax %}
-{% from 'mermaidjs.html.j2' import mermaid_js %}
 {% from 'jupyter_widgets.html.j2' import jupyter_widgets %}
 
 {%- block header -%}
@@ -14,9 +13,18 @@
 <title>{{nb_title}}</title>
 
 {%- block html_head_js -%}
+{%- block html_head_js_jquery -%}
+<script src="{{ resources.jquery_url }}"></script>
+{%- endblock html_head_js_jquery -%}
 {%- block html_head_js_requirejs -%}
 <script src="{{ resources.require_js_url }}"></script>
 {%- endblock html_head_js_requirejs -%}
+{%- block html_head_js_mermaidjs -%}
+<script type="module">
+  import mermaid from '{{ resources.mermaid_js_url }}';
+  mermaid.initialize({ startOnLoad: true });
+</script>
+{%- endblock html_head_js_mermaidjs -%}
 {%- endblock html_head_js -%}
 
 {% block jupyter_widgets %}
@@ -25,92 +33,55 @@
   {%- endif -%}
 {% endblock jupyter_widgets %}
 
-{% block extra_css %}
-{% endblock extra_css %}
-
 {% for css in resources.inlining.css -%}
   <style type="text/css">
-    {{ css }}
+  {{ css }}
   </style>
 {% endfor %}
 
 {% block notebook_css %}
-{{ resources.include_css("static/index.css") }}
-{% if resources.theme == 'dark' %}
-    {{ resources.include_css("static/theme-dark.css") }}
-{% elif resources.theme == 'light'  %}
-    {{ resources.include_css("static/theme-light.css") }}
-{% else %}
-    {{ resources.include_lab_theme(resources.theme) }}
-{% endif %}
+{{ resources.include_css("static/style.css") }}
 <style type="text/css">
-/* Force rendering true colors when outputing to pdf */
-* {
-  -webkit-print-color-adjust: exact;
+/* Overrides of notebook CSS for static HTML export */
+body {
+  overflow: visible;
+  padding: 8px;
 }
 
-/* Misc */
-a.anchor-link {
-  display: none;
+div#notebook {
+  overflow: visible;
+  border-top: none;
 }
 
-/* Input area styling */
-.jp-InputArea {
-  overflow: hidden;
+{%- if resources.global_content_filter.no_prompt-%}
+div#notebook-container{
+  padding: 6ex 12ex 8ex 12ex;
 }
-
-.jp-InputArea-editor {
-  overflow: hidden;
-}
-
-.cm-editor.cm-s-jupyter .highlight pre {
-/* weird, but --jp-code-padding defined to be 5px but 4px horizontal padding is hardcoded for pre.cm-line */
-  padding: var(--jp-code-padding) 4px;
-  margin: 0;
-
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  color: inherit;
-
-}
-
-.jp-OutputArea-output pre {
-  line-height: inherit;
-  font-family: inherit;
-}
-
-.jp-RenderedText pre {
-  color: var(--jp-content-font-color1);
-  font-size: var(--jp-code-font-size);
-}
-
-/* Hiding the collapser by default */
-.jp-Collapser {
-  display: none;
-}
-
-@page {
-    margin: 0.5in; /* Margin for each printed piece of paper */
-}
+{%- endif -%}
 
 @media print {
-  .jp-Cell-inputWrapper,
-  .jp-Cell-outputWrapper {
+  body {
+    margin: 0;
+  }
+  div.cell {
     display: block;
+    page-break-inside: avoid;
+  }
+  div.output_wrapper {
+    display: block;
+    page-break-inside: avoid;
+  }
+  div.output {
+    display: block;
+    page-break-inside: avoid;
   }
 }
 </style>
-
 {% endblock notebook_css %}
 
 {%- block html_head_js_mathjax -%}
 {{ mathjax(resources.mathjax_url) }}
 {%- endblock html_head_js_mathjax -%}
-
-{%- block html_head_js_mermaidjs -%}
-{{ mermaid_js(resources.mermaid_js_url) }}
-{%- endblock html_head_js_mermaidjs -%}
 
 {%- block html_head_css -%}
 {%- endblock html_head_css -%}
@@ -119,17 +90,17 @@ a.anchor-link {
 </head>
 {%- endblock header -%}
 
-{%- block body_header -%}
-{% if resources.theme == 'dark' %}
-<body class="jp-Notebook" data-jp-theme-light="false" data-jp-theme-name="JupyterLab Dark">
-{% else %}
-<body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-{% endif %}
-<main>
-{%- endblock body_header -%}
+{% block body_header %}
+<body>
+  <main>
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+      <div class="container" id="notebook-container">
+{% endblock body_header %}
 
 {% block body_footer %}
-</main>
+      </div>
+    </div>
+  </main>
 </body>
 {% endblock body_footer %}
 
