@@ -1,111 +1,151 @@
-/* Clean, elegant academic style */
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #fdfdfd;
+/* hide all code cells */
+/*div.jp-InputArea,
+div.jp-Cell-inputWrapper,
+div.prompt,
+div.prompt.input,
+div.prompt.output {
+  display: none !important;
+}
+div.output_area pre,
+pre {
+  display: none !important;
+} */
+
+
+.jp-Cell.jp-CodeCell .jp-InputArea,
+.jp-Cell.jp-CodeCell .jp-InputPrompt,
+.jp-Cell.jp-CodeCell .jp-OutputPrompt {
+  display: none !important;
+}
+
+/* Classic notebook */
+div.input, 
+div.prompt.input, 
+div.prompt.output {
+  display: none !important;
+}
+
+div.output_area pre,
+pre {
+  display: none !important;
+} 
+
+/* Global Reset and Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
-  padding: 2rem;
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
+  padding: 0;
 }
 
-h1, h2, h3 {
-  color: #323538;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 0.3rem;
+/* Full-height layout */
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: #fdfdfd;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  line-height: 1.6;
+  overflow: hidden;
 }
 
-.sidebar {
-  width: 250px;
+/* Flex container to split sidebar and content */
+.layout {
+  display: flex;
   height: 100vh;
-  overflow-y: auto;
+}
+
+/* Sidebar (TOC) styling */
+nav#toc {
+  width: 250px;
+  height: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #f5f5f5;
+  background-color: #f9f9f9;
   border-right: 1px solid #ccc;
   padding: 1rem;
+  overflow-y: auto;
 }
 
-#toc {
-  background-color: #f9f9f9;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  margin-bottom: 2rem;
-}
-
-#toc .toc-image {
+/* Image inside TOC */
+nav#toc .toc-image {
   width: 100%;
   height: auto;
   display: block;
   border-bottom: 1px solid #ccc;
   padding-bottom: 0.3rem;
-  margin-bottom: 1rem; /* space between image and "Table of Contents" heading */
+  margin-bottom: 1rem;
 }
 
-.content {
-  margin-left: 260px;
-  padding: 2rem;
-  width: calc(100% - 260px);
+/* TOC heading styling */
+nav#toc h2 {
+  font-size: 1.2rem;
+  color: #323538;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.3rem;
+  margin-bottom: 1rem;
 }
 
-.toc {
+/* TOC list reset */
+nav#toc ul {
   list-style: none;
-  padding: 0;
+  padding-left: 0;
 }
-
-.toc li {
-  margin-bottom: 0.5rem;
+nav#toc li {
+  margin: 0.5rem 0;
 }
-
-.toc-level-1 { font-weight: bold; }
-.toc-level-2 { margin-left: 1rem; }
-.toc-level-3 { margin-left: 2rem; }
-
-a {
+nav#toc li a {
   color: #007acc;
   text-decoration: none;
 }
-a:hover {
+nav#toc li a:hover {
   text-decoration: underline;
 }
 
-img.logo {
-  max-width: 200px;
-  margin-bottom: 2rem;
+/* Main content area */
+.content {
+  margin-left: 250px;
+  padding: 1rem 2rem;
+  width: calc(100% - 250px);
+  height: 100%;
+  overflow-y: auto;
 }
 
+/* Logo inside content */
+img.logo {
+  max-width: 200px;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+/* Heading styles for content */
+h1, h2, h3 {
+  color: #323538;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.3rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Table styling */
 table {
   border-collapse: collapse;
   width: 100%;
   margin: 1rem 0;
 }
-
 th, td {
   border: 1px solid #ddd;
   padding: 0.5rem;
   text-align: left;
 }
-
 th {
   background-color: #f5f5f5;
 }
 
+/* Code block styling */
 pre, code {
   background-color: #f4f4f4;
   padding: 0.4rem;
   border-radius: 4px;
   font-size: 0.9em;
-}
-
-/* Optional TOC */
-nav#toc {
-  background-color: #f9f9f9;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  margin-bottom: 2rem;
-  position: sticky;
-  top: 10px;
 }
