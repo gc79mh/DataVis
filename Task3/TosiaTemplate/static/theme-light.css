@@ -1,0 +1,103 @@
+/* Clean, elegant academic style */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fdfdfd;
+  margin: 0;
+  padding: 2rem;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+h1, h2, h3 {
+  color: #323538;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.3rem;
+}
+
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #f5f5f5;
+  border-right: 1px solid #ccc;
+  padding: 1rem;
+}
+
+#toc {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  margin-bottom: 2rem;
+}
+
+
+.content {
+  margin-left: 260px;
+  padding: 2rem;
+  width: calc(100% - 260px);
+}
+
+.toc {
+  list-style: none;
+  padding: 0;
+}
+
+.toc li {
+  margin-bottom: 0.5rem;
+}
+
+.toc-level-1 { font-weight: bold; }
+.toc-level-2 { margin-left: 1rem; }
+.toc-level-3 { margin-left: 2rem; }
+
+a {
+  color: #007acc;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+img.logo {
+  max-width: 200px;
+  margin-bottom: 2rem;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+th {
+  background-color: #f5f5f5;
+}
+
+pre, code {
+  background-color: #f4f4f4;
+  padding: 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Optional TOC */
+nav#toc {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  margin-bottom: 2rem;
+  position: sticky;
+  top: 10px;
+}
