@@ -1,11 +1,13 @@
 {%- extends 'base.html.j2' -%}
 {% from 'mathjax.html.j2' import mathjax %}
+{% from 'mermaidjs.html.j2' import mermaid_js %}
 {% from 'jupyter_widgets.html.j2' import jupyter_widgets %}
 
 {%- block header -%}
 <!DOCTYPE html>
 <html lang="{{ resources.language_code }}">
 <head>
+
 {%- block html_head -%}
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,18 +15,9 @@
 <title>{{nb_title}}</title>
 
 {%- block html_head_js -%}
-{%- block html_head_js_jquery -%}
-<script src="{{ resources.jquery_url }}"></script>
-{%- endblock html_head_js_jquery -%}
 {%- block html_head_js_requirejs -%}
 <script src="{{ resources.require_js_url }}"></script>
 {%- endblock html_head_js_requirejs -%}
-{%- block html_head_js_mermaidjs -%}
-<script type="module">
-  import mermaid from '{{ resources.mermaid_js_url }}';
-  mermaid.initialize({ startOnLoad: true });
-</script>
-{%- endblock html_head_js_mermaidjs -%}
 {%- endblock html_head_js -%}
 
 {% block jupyter_widgets %}
@@ -33,55 +26,108 @@
   {%- endif -%}
 {% endblock jupyter_widgets %}
 
+{% block extra_css %}
+{% endblock extra_css %}
+
 {% for css in resources.inlining.css -%}
   <style type="text/css">
-  {{ css }}
+    {{ css }}
   </style>
 {% endfor %}
 
 {% block notebook_css %}
-{{ resources.include_css("static/style.css") }}
+{{ resources.include_css("static/index.css") }}
+{% if resources.theme == 'dark' %}
+    {{ resources.include_css("static/theme-dark.css") }}
+{% elif resources.theme == 'light'  %}
+    {{ resources.include_css("static/theme-light.css") }}
+{% else %}
+    {{ resources.include_lab_theme(resources.theme) }}
+{% endif %}
 <style type="text/css">
-/* Overrides of notebook CSS for static HTML export */
+* {
+  -webkit-print-color-adjust: exact;
+}
+
+a.anchor-link {
+  display: none;
+}
+
 body {
-  overflow: visible;
-  padding: 8px;
+  margin: 0;
+  font-family: sans-serif;
+  display: flex;
 }
 
-div#notebook {
-  overflow: visible;
-  border-top: none;
+#toc {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  overflow-y: auto;
+  background-color: #f7f7f7;
+  padding: 1rem;
+  border-right: 1px solid #ccc;
 }
 
-{%- if resources.global_content_filter.no_prompt-%}
-div#notebook-container{
-  padding: 6ex 12ex 8ex 12ex;
+#toc h2 {
+  font-size: 1.2rem;
+  margin-top: 0;
 }
-{%- endif -%}
+
+#toc ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+#toc li {
+  margin: 0.25rem 0;
+}
+
+#toc li a {
+  text-decoration: none;
+  color: #333;
+}
+
+#toc li a:hover {
+  text-decoration: underline;
+}
+
+.content {
+  margin-left: 260px;
+  padding: 2rem;
+  flex: 1;
+}
+
+/* Markdown Heading Styles */
+{% for level in range(1, 7) %}
+h{{ level }} {
+  scroll-margin-top: 80px;
+}
+{% endfor %}
+
+@page {
+    margin: 0.5in;
+}
 
 @media print {
-  body {
-    margin: 0;
-  }
-  div.cell {
+  .jp-Cell-inputWrapper,
+  .jp-Cell-outputWrapper {
     display: block;
-    page-break-inside: avoid;
-  }
-  div.output_wrapper {
-    display: block;
-    page-break-inside: avoid;
-  }
-  div.output {
-    display: block;
-    page-break-inside: avoid;
   }
 }
 </style>
+
 {% endblock notebook_css %}
 
 {%- block html_head_js_mathjax -%}
 {{ mathjax(resources.mathjax_url) }}
 {%- endblock html_head_js_mathjax -%}
+
+{%- block html_head_js_mermaidjs -%}
+{{ mermaid_js(resources.mermaid_js_url) }}
+{%- endblock html_head_js_mermaidjs -%}
 
 {%- block html_head_css -%}
 {%- endblock html_head_css -%}
@@ -90,17 +136,40 @@ div#notebook-container{
 </head>
 {%- endblock header -%}
 
-{% block body_header %}
-<body>
-  <main>
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-      <div class="container" id="notebook-container">
+{%- block body_header -%}
+{% if resources.theme == 'dark' %}
+<body class="jp-Notebook" data-jp-theme-light="false" data-jp-theme-name="JupyterLab Dark">
+{% else %}
+<body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
+{% endif %}
+
+<!-- Sidebar TOC -->
+<nav id="toc">
+    <img src="TosiaTemplate/static/PP_logotyp_CMYK.jpg" alt="Photo" class="toc-image">
+    <h2>Table of Contents  </h2>
+    <ul>
+        {% for cell in nb.cells if cell.cell_type == 'markdown' %}
+            {% for line in cell.source.splitlines() %}
+                {% if line.startswith('#') %}
+                    {% set level = line.count('#') %}
+                    {% set text = line.lstrip('#').strip() %}
+                    {% set anchor = text | replace(' ', '-') | lower %}
+                    <li style="margin-left: {{ (level-1)*1 }}em;">
+                        <a href="#{{ anchor }}">{{ text }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</nav>
+
+<!-- Main Notebook Content -->
+<main class="content">
+    <!-- <img src="TosiaTemplate/static/logo_kontur.jpg" alt="PUT Logoxxx" class="logo"> -->
 {% endblock body_header %}
 
 {% block body_footer %}
-      </div>
-    </div>
-  </main>
+</main>
 </body>
 {% endblock body_footer %}
 
