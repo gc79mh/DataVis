@@ -1,0 +1,9 @@
+markdown cell:
+<img src="mytemplate/static/logo_eng_CMYK.jpg" alt="Alternative text" />
+
+<div style="display: flex; align-items: center;">
+  <img src="mytemplate/static/logo_eng_CMYK.jpg"
+       alt="Logo"
+       style="height:50px;"
+       align="right">
+</div>
