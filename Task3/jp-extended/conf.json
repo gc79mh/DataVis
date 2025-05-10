@@ -1,0 +1,6 @@
+{
+    "base_template": "pj",
+    "mimetypes": {
+      "text/html": true
+    }
+}

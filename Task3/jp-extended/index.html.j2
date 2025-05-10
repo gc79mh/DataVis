@@ -1,0 +1,44 @@
+{%- extends "pj/index.html.j2" -%}
+
+{# ------------------ HEADER + IMAGE ------------------ #}
+{% block main_container_start %}
+    <!-- Add the photo at the very top -->
+    <div style="text-align:center; margin-top: 20px;">
+        <img src="mytemplate/static/logo_eng_CMYK.jpg" alt="Top Image" style="max-width:50rem;">
+    </div>
+
+    <!-- Existing header content -->
+    <header id="pageHeader" style="text-align:center; " >
+        <hr />
+        {% set metadata = resources.pj_metadata %}
+        {% if "title" in metadata %}
+            <h1 style="text-align:center;">{{ metadata.title | e }}</h1>
+        {% endif %}
+        {% if "author" in metadata %}
+            <h4>{{ metadata.author | e }}</h4>
+        {% endif %}
+        {% if "date" in metadata %}
+            <h4>{{ metadata.date | e }}</h4>
+        {% endif %}
+        <hr />
+    </header>
+{% endblock main_container_start %}
+
+{# ------------------ EMPTY HEADER BLOCK ------------------ #}
+{% block page_header %}
+{% endblock page_header %}
+
+{# ------------------ FOOTER CUSTOMIZATION ------------------ #}
+{% block main_container_end %}
+    <footer>
+        <hr id="firstHr" />
+        <h4>Made By Antonina Gardzielewska and Wiktor Bocheński <img src="PP_znak_konturowy_CMYK.jpg" alt="Top Image" style="height:2.5rem;"> </h4>
+        
+        <hr id="secondHr" />
+    </footer>
+{% endblock main_container_end %}
+
+{# ------------------ CSS BLOCK ------------------ #}
+{% block notebook_css %}
+    {{ super() }}
+{% endblock notebook_css %}
